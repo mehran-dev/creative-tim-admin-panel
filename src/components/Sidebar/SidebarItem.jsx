@@ -1,18 +1,19 @@
-import React, { useState } from 'react'
-import { withRouter } from 'react-router-dom'
+import React, { useState, useRef } from 'react'
+import { withRouter, NavLink } from 'react-router-dom'
 
-function SidebarItem({ item, isActive, history }) {
-  console.log(item)
-  const [open, setOpen] = useState(false)
+function SidebarItem({ item, history }) {
+  const openRef = useRef(false) //stay open if it is already open
+  const [open, setOpen] = useState(openRef.current)
+
+  const toggleHandler = () => {
+    setOpen(!open)
+    openRef.current = !openRef.current
+  }
 
   if (item.childrens) {
     return (
-      <div
-        className={`sidebar-item  ${isActive ? 'active' : ''}   ${
-          open ? 'open' : ''
-        } `}
-      >
-        <div className="sidebar-title" onClick={() => setOpen(!open)}>
+      <div className={`sidebar-item     ${open ? 'open' : ''} `}>
+        <div className="sidebar-title" onClick={() => toggleHandler()}>
           <span
             style={{
               display: 'flex',
@@ -26,29 +27,24 @@ function SidebarItem({ item, isActive, history }) {
         <div className="sidebar-content">
           {item.childrens.map((child, index) => {
             console.log(child)
-            return (
-              <SidebarItem
-                key={index}
-                item={child}
-                isActive={child.path === history.location.pathname}
-              />
-            )
+            return <SidebarItem key={index} item={child} />
           })}
         </div>
       </div>
     )
   } else {
     return (
-      <a
+      <NavLink
+        activeStyle={{ backgroundColor: 'purple' }}
         style={{
           display: 'flex',
         }}
-        href={item.path || '#'}
-        className={`sidebar-item plain  ${isActive ? 'active' : ''} `}
+        to={item.path || '#'}
+        className={`sidebar-item plain   `}
       >
         {item.icon && <item.icon />}
         {item.sidebarName}
-      </a>
+      </NavLink>
     )
   }
 }
